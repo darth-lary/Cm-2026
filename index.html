@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CM 2026 · DSAA — Concurs de pronosticuri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --teren:#0E4A2F; --teren2:#0A3A24; --linie:#E8F3EA; --hartie:#FBFAF4;
+  --cerneala:#15231B; --gri:#5E6B62; --bord:#D8DED4;
+  --verde-hit:#BFE8C5; --verde-txt:#0B5A23; --rosu:#C4392E; --aur:#E9B23A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--hartie);color:var(--cerneala)}
+
+/* ===== antet tip tabelă de marcaj ===== */
+header{background:
+  repeating-linear-gradient(90deg,var(--teren) 0 120px,var(--teren2) 120px 240px);
+  color:var(--linie);padding:26px 20px 22px;border-bottom:5px solid var(--aur)}
+.antet-int{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font:700 13px/1 'Saira Condensed';letter-spacing:.22em;text-transform:uppercase;color:var(--aur)}
+h1{font:800 clamp(30px,5vw,52px)/1 'Saira Condensed';text-transform:uppercase;letter-spacing:.01em;margin-top:6px}
+.sub{margin-top:6px;font-size:13.5px;color:#CFE3D4;max-width:60ch}
+.actiuni{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+button.principal{font:700 16px 'Saira Condensed';letter-spacing:.06em;text-transform:uppercase;
+  background:var(--aur);color:#231803;border:none;padding:12px 22px;cursor:pointer;border-radius:3px}
+button.principal:hover{filter:brightness(1.07)}
+button.principal:disabled{opacity:.55;cursor:wait}
+button.principal:focus-visible,.scorinp:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.status{font-size:12.5px;color:#CFE3D4;min-height:1.2em;text-align:right}
+
+main{max-width:1280px;margin:0 auto;padding:26px 16px 60px}
+section{margin-bottom:42px}
+h2{font:700 22px 'Saira Condensed';text-transform:uppercase;letter-spacing:.12em;
+  border-bottom:2px solid var(--cerneala);padding-bottom:6px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline}
+h2 .nota{font:500 12px 'Inter';letter-spacing:0;text-transform:none;color:var(--gri)}
+
+/* ===== clasament ===== */
+.clasament{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--bord);padding:10px 12px;border-radius:4px}
+.card.lider{border:2px solid var(--aur);box-shadow:0 2px 0 var(--aur)}
+.loc{font:800 26px/1 'Saira Condensed';min-width:34px;text-align:center;color:var(--gri)}
+.card.lider .loc{color:var(--aur)}
+.chip{width:14px;align-self:stretch;border-radius:2px}
+.cine{flex:1}
+.cine b{font:700 15px 'Inter';display:block}
+.cine span{font-size:11.5px;color:var(--gri)}
+.pct{font:800 30px/1 'Saira Condensed'}
+
+/* ===== grafic puncte ===== */
+.grafic-cadru{overflow:auto;background:#fff;border:1px solid var(--bord);border-radius:4px;padding:14px 10px 4px;margin-bottom:12px}
+#grafic{display:block;min-width:900px;width:100%;height:auto}
+#grafic .val{font:700 17px 'Saira Condensed'}
+#grafic .nume-g{font:600 11.5px 'Inter'}
+#grafic .axa{font:500 10.5px 'Inter';fill:var(--gri)}
+.bara{stroke:rgba(21,35,27,.28);stroke-width:1;transform-box:fill-box;transform-origin:bottom}
+@keyframes creste{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.bara.anim{animation:creste .7s cubic-bezier(.2,.8,.3,1) both}
+@media (prefers-reduced-motion:reduce){.bara.anim{animation:none}}
+
+/* ===== grila meciurilor ===== */
+.cadru{overflow:auto;border:2px solid var(--cerneala);background:#fff;max-height:78vh}
+table{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+th,td{border-right:1px solid var(--bord);border-bottom:1px solid var(--bord);padding:5px 7px;text-align:center;white-space:nowrap}
+thead th{position:sticky;top:0;z-index:5;background:#fff}
+thead th.nume{height:118px;vertical-align:bottom;padding:0}
+.numev{writing-mode:vertical-rl;transform:rotate(180deg);font:700 13px 'Saira Condensed';
+  letter-spacing:.08em;padding:10px 0;width:100%;display:inline-block;min-width:46px}
+tbody th{position:sticky;left:0;z-index:3;background:var(--hartie);text-align:left;font-weight:600;
+  border-right:2px solid var(--cerneala);max-width:230px;white-space:normal;line-height:1.25}
+td.data{color:var(--gri);font-variant-numeric:tabular-nums}
+td.rez{font:800 15px 'Saira Condensed';background:#F4F6F2;border-right:2px solid var(--cerneala)}
+td.rez.gol{color:#B9C2B9;font:600 12px 'Inter'}
+td.p{font-variant-numeric:tabular-nums}
+td.hit{background:var(--verde-hit);color:var(--verde-txt);font-weight:700;position:relative}
+td.hit::after{content:'✓';font-size:9px;position:absolute;top:1px;right:3px}
+tr.etapa td,tr.etapa th{border-top:2px solid var(--cerneala)}
+tbody tr:hover td,tbody tr:hover th{background-image:linear-gradient(rgba(14,74,47,.05),rgba(14,74,47,.05))}
+@keyframes puls{0%{box-shadow:inset 0 0 0 3px var(--verde-txt)}100%{box-shadow:inset 0 0 0 0 transparent}}
+td.nou{animation:puls 1.4s ease-out 1}
+@media (prefers-reduced-motion:reduce){td.nou{animation:none}}
+
+/* ===== corectură manuală ===== */
+.manual{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fff;border:1px dashed var(--bord);padding:12px 14px;border-radius:4px}
+.manual label{font-size:13px;font-weight:600}
+.manual select,.scorinp{font:600 14px 'Inter';padding:7px 9px;border:1px solid var(--bord);border-radius:3px;background:var(--hartie)}
+.scorinp{width:74px;text-align:center}
+button.secundar{font:700 13px 'Saira Condensed';letter-spacing:.06em;text-transform:uppercase;
+  background:var(--teren);color:#fff;border:none;padding:9px 16px;border-radius:3px;cursor:pointer}
+.subsol{margin-top:34px;font-size:12.5px;color:var(--gri);line-height:1.6;border-top:1px solid var(--bord);padding-top:14px}
+.eroare{color:var(--rosu);font-weight:600}
+@media(max-width:640px){ .antet-int{align-items:flex-start} .actiuni{align-items:flex-start} .status{text-align:left} }
+</style>
+</head>
+<body>
+<header>
+  <div class="antet-int">
+    <div>
+      <div class="eyebrow">DSAA · Campionatul Mondial de Fotbal 2026</div>
+      <h1>Concurs de pronosticuri</h1>
+      <div class="sub">17 concurenți · 72 de meciuri în grupe · 1 punct pentru scor exact. Verdele marchează pronosticurile câștigătoare.</div>
+    </div>
+    <div class="actiuni">
+      <div class="status" id="status">Rezultatele se actualizează automat în fiecare dimineață (≈08:00).</div>
+    </div>
+  </div>
+</header>
+<main>
+  <section>
+    <h2>Clasament <span class="nota" id="notaClasament"></span></h2>
+    <div class="grafic-cadru"><svg id="grafic" role="img" aria-label="Punctele fiecărui participant, bare în culoarea proprie"></svg></div>
+    <div class="clasament" id="clasament"></div>
+  </section>
+
+  <section>
+    <h2>Faza grupelor <span class="nota">glisează lateral pentru toți concurenții · ✓ = scor exact</span></h2>
+    <div class="cadru"><table id="grila">
+      <thead><tr id="capTabel"></tr></thead>
+      <tbody id="corpTabel"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Corectură manuală <span class="nota">dacă actualizarea automată nu găsește un meci</span></h2>
+    <div class="manual">
+      <label for="selMeci">Meci:</label>
+      <select id="selMeci"></select>
+      <label for="inpScor">Scor:</label>
+      <input class="scorinp" id="inpScor" placeholder="2-1" maxlength="5">
+      <button class="secundar" id="btnManual">Salvează rezultatul</button>
+      <span id="statusManual" style="font-size:12.5px"></span>
+    </div>
+  </section>
+
+  <div class="subsol">
+    Regulă: 1 punct pentru scor exact, 0 în rest; departajare la egalitate — ordinea alfabetică nu contează, locurile egale se împart.
+    Rezultatele se salvează partajat: orice coleg care deschide pagina vede aceeași situație, iar o actualizare făcută de unul apare la toți.
+    Faza eliminatorie se adaugă după 28 iunie, când se cunosc echipele calificate. Sursa rezultatelor: căutare web prin Claude la apăsarea butonului.
+  </div>
+</main>
+
+<script>
+const DATE = {"meciuri": [{"nr": 1, "data": "11.06", "g": "Mexic", "o": "Africa de Sud"}, {"nr": 2, "data": "12.06", "g": "Coreea de Sud", "o": "Cehia"}, {"nr": 3, "data": "12.06", "g": "Canada", "o": "Bosnia și Herțegovina"}, {"nr": 4, "data": "13.06", "g": "Qatar", "o": "Elveția"}, {"nr": 5, "data": "13.06", "g": "S.U.A.", "o": "Paraguay"}, {"nr": 6, "data": "14.06", "g": "Brazilia", "o": "Maroc"}, {"nr": 7, "data": "14.06", "g": "Haiti", "o": "Scoția"}, {"nr": 8, "data": "14.06", "g": "Australia", "o": "Turcia"}, {"nr": 9, "data": "14.06", "g": "Germania", "o": "Curaçao"}, {"nr": 10, "data": "14.06", "g": "Țările de Jos", "o": "Japonia"}, {"nr": 11, "data": "15.06", "g": "Coasta de Fildeș", "o": "Ecuador"}, {"nr": 12, "data": "15.06", "g": "Tunisia", "o": "Suedia"}, {"nr": 13, "data": "15.06", "g": "Spania", "o": "Capul Verde"}, {"nr": 14, "data": "16.06", "g": "Arabia Saudită", "o": "Uruguay"}, {"nr": 15, "data": "16.06", "g": "Belgia", "o": "Egipt"}, {"nr": 16, "data": "16.06", "g": "Iran", "o": "Noua Zeelandă"}, {"nr": 17, "data": "16.06", "g": "Franța", "o": "Senegal"}, {"nr": 18, "data": "17.06", "g": "Norvegia", "o": "Irak"}, {"nr": 19, "data": "17.06", "g": "Argentina", "o": "Algeria"}, {"nr": 20, "data": "17.06", "g": "Austria", "o": "Iordania"}, {"nr": 21, "data": "17.06", "g": "Portugalia", "o": "RD Congo"}, {"nr": 22, "data": "17.06", "g": "Anglia", "o": "Croația"}, {"nr": 23, "data": "18.06", "g": "Ghana", "o": "Panama"}, {"nr": 24, "data": "18.06", "g": "Uzbekistan", "o": "Columbia"}, {"nr": 25, "data": "18.06", "g": "Africa de Sud", "o": "Cehia"}, {"nr": 26, "data": "18.06", "g": "Elveția", "o": "Bosnia și Herțegovina"}, {"nr": 27, "data": "19.06", "g": "Canada", "o": "Qatar"}, {"nr": 28, "data": "19.06", "g": "Mexic", "o": "Coreea de Sud"}, {"nr": 29, "data": "19.06", "g": "S.U.A.", "o": "Australia"}, {"nr": 30, "data": "20.06", "g": "Scoția", "o": "Maroc"}, {"nr": 31, "data": "20.06", "g": "Brazilia", "o": "Haiti"}, {"nr": 32, "data": "20.06", "g": "Paraguay", "o": "Turcia"}, {"nr": 33, "data": "20.06", "g": "Țările de Jos", "o": "Suedia"}, {"nr": 34, "data": "20.06", "g": "Germania", "o": "Coasta de Fildeș"}, {"nr": 35, "data": "21.06", "g": "Ecuador", "o": "Curaçao"}, {"nr": 36, "data": "21.06", "g": "Tunisia", "o": "Japonia"}, {"nr": 37, "data": "21.06", "g": "Spania", "o": "Arabia Saudită"}, {"nr": 38, "data": "22.06", "g": "Uruguay", "o": "Capul Verde"}, {"nr": 39, "data": "22.06", "g": "Belgia", "o": "Iran"}, {"nr": 40, "data": "22.06", "g": "Noua Zeelandă", "o": "Egipt"}, {"nr": 41, "data": "22.06", "g": "Argentina", "o": "Austria"}, {"nr": 42, "data": "23.06", "g": "Franța", "o": "Irak"}, {"nr": 43, "data": "23.06", "g": "Norvegia", "o": "Senegal"}, {"nr": 44, "data": "23.06", "g": "Iordania", "o": "Algeria"}, {"nr": 45, "data": "23.06", "g": "Portugalia", "o": "Uzbekistan"}, {"nr": 46, "data": "23.06", "g": "Anglia", "o": "Ghana"}, {"nr": 47, "data": "24.06", "g": "Panama", "o": "Croația"}, {"nr": 48, "data": "24.06", "g": "Columbia", "o": "RD Congo"}, {"nr": 49, "data": "24.06", "g": "Maroc", "o": "Haiti"}, {"nr": 50, "data": "24.06", "g": "Elveția", "o": "Canada"}, {"nr": 51, "data": "24.06", "g": "Qatar", "o": "Bosnia și Herțegovina"}, {"nr": 52, "data": "25.06", "g": "Scoția", "o": "Brazilia"}, {"nr": 53, "data": "25.06", "g": "Mexic", "o": "Cehia"}, {"nr": 54, "data": "25.06", "g": "Africa de Sud", "o": "Coreea de Sud"}, {"nr": 55, "data": "25.06", "g": "Curaçao", "o": "Coasta de Fildeș"}, {"nr": 56, "data": "25.06", "g": "Ecuador", "o": "Germania"}, {"nr": 57, "data": "26.06", "g": "Japonia", "o": "Suedia"}, {"nr": 58, "data": "26.06", "g": "Tunisia", "o": "Țările de Jos"}, {"nr": 59, "data": "26.06", "g": "Turcia", "o": "S.U.A."}, {"nr": 60, "data": "26.06", "g": "Paraguay", "o": "Australia"}, {"nr": 61, "data": "26.06", "g": "Norvegia", "o": "Franța"}, {"nr": 62, "data": "26.06", "g": "Senegal", "o": "Irak"}, {"nr": 63, "data": "27.06", "g": "Capul Verde", "o": "Arabia Saudită"}, {"nr": 64, "data": "27.06", "g": "Uruguay", "o": "Spania"}, {"nr": 65, "data": "27.06", "g": "Egipt", "o": "Iran"}, {"nr": 66, "data": "27.06", "g": "Noua Zeelandă", "o": "Belgia"}, {"nr": 67, "data": "28.06", "g": "Panama", "o": "Anglia"}, {"nr": 68, "data": "28.06", "g": "Croația", "o": "Ghana"}, {"nr": 69, "data": "28.06", "g": "Columbia", "o": "Portugalia"}, {"nr": 70, "data": "28.06", "g": "RD Congo", "o": "Uzbekistan"}, {"nr": 71, "data": "28.06", "g": "Algeria", "o": "Austria"}, {"nr": 72, "data": "28.06", "g": "Iordania", "o": "Argentina"}], "participanti": [{"nume": "ADINA", "bg": "#C00000", "fg": "#fff", "pred": ["1-1", "0-2", "0-2", "0-3", "1-1", "2-1", "0-1", "0-2", "5-0", "1-0", "1-2", "1-2", "2-0", "0-3", "2-0", "1-0", "2-1", "1-0", "4-0", "2-0", "2-0", "2-2", "1-0", "0-3", "2-3", "1-1", "2-0", "3-1", "1-0", "1-2", "4-0", "2-2", "0-0", "3-0", "3-1", "1-2", "1-0", "3-0", "2-0", "0-0", "2-1", "1-0", "0-0", "0-2", "2-0", "2-1", "0-3", "3-1", "2-0", "3-1", "1-2", "1-3", "2-1", "2-1", "0-2", "1-2", "1-3", "0-2", "2-1", "3-1", "2-2", "1-0", "0-1", "2-2", "1-1", "0-3", "0-2", "2-1", "1-1", "1-0", "1-3", "0-2"]}, {"nume": "LILI", "bg": "#7030A0", "fg": "#fff", "pred": ["0-0", "0-1", "1-2", "1-2", "2-1", "2-0", "0-3", "1-3", "3-0", "2-1", "2-2", "1-3", "2-0", "2-2", "3-1", "1-0", "3-1", "2-0", "3-1", "1-0", "2-1", "2-2", "1-1", "1-2", "1-3", "2-2", "3-1", "2-2", "3-1", "2-1", "3-1", "1-2", "2-2", "3-0", "2-0", "1-2", "2-0", "2-0", "3-1", "1-2", "2-1", "1-0", "2-0", "1-2", "3-2", "2-0", "0-2", "3-0", "1-0", "2-1", "1-3", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "ALIN", "bg": "#D7E021", "fg": "#000", "pred": ["0-0", "0-3", "1-3", "1-2", "0-0", "6-1", "0-2", "0-0", "7-0", "3-1", "1-1", "1-1", "2-0", "0-0", "2-1", "2-1", "1-1", "2-1", "3-0", "4-0", "6-0", "1-1", "0-0", "0-1", "2-1", "1-1", "0-0", "2-0", "2-1", "2-1", "7-0", "0-2", "2-1", "1-0", "0-0", "2-1", "4-0", "6-0", "4-1", "0-0", "2-0", "1-1", "1-0", "2-1", "5-0", "8-0", "0-3", "5-0", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "BOGDAN", "bg": "#00913A", "fg": "#fff", "pred": ["2-0", "1-1", "2-1", "0-2", "2-1", "2-0", "0-2", "1-1", "3-0", "2-1", "1-1", "1-1", "3-0", "0-2", "2-0", "2-0", "2-1", "3-0", "3-0", "2-0", "2-0", "2-1", "1-1", "0-2", "1-1", "2-0", "2-0", "1-1", "2-1", "1-1", "4-0", "1-1", "2-0", "2-0", "2-0", "0-1", "3-0", "2-0", "2-1", "1-1", "2-0", "3-0", "2-1", "0-1", "2-0", "2-0", "0-2", "2-0", "3-0", "1-1", "1-1", "0-3", "1-1", "1-1", "0-2", "1-2", "1-1", "0-2", "1-1", "1-1", "1-2", "2-0", "1-1", "1-2", "1-1", "0-3", "0-3", "2-0", "1-1", "1-1", "1-1", "0-3"]}, {"nume": "CĂTĂLIN", "bg": "#F7F3CF", "fg": "#000", "pred": ["2-1", "1-2", "2-1", "0-2", "1-2", "3-1", "0-0", "2-2", "2-0", "0-0", "1-1", "2-1", "3-0", "0-0", "2-0", "0-1", "2-0", "3-1", "2-0", "0-0", "3-0", "2-2", "1-1", "1-2", "1-3", "2-0", "3-1", "0-0", "1-2", "1-1", "3-0", "1-3", "1-3", "3-1", "0-0", "2-1", "2-0", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "CLAUDIU", "bg": "#322B5F", "fg": "#fff", "pred": ["2-0", "1-0", "0-2", "1-0", "0-3", "4-0", "2-0", "0-2", "3-0", "1-1", "0-1", "0-4", "2-0", "0-3", "2-1", "1-1", "3-0", "4-0", "4-0", "3-0", "4-0", "1-2", "0-1", "0-3", "0-3", "1-3", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "COSTEL", "bg": "#41B6E6", "fg": "#000", "pred": ["2-0", "1-2", "1-2", "0-3", "1-0", "2-0", "0-3", "1-1", "4-0", "2-0", "2-1", "0-2", "4-0", "0-2", "2-0", "1-0", "2-1", "3-0", "4-0", "3-1", "4-0", "3-1", "2-0", "0-2", "0-2", "2-1", "1-0", "2-1", "1-1", "1-1", "4-0", "0-2", "2-1", "2-0", "2-0", "1-1", "3-0", "3-0", "2-0", "0-1", "1-0", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "CRISTI", "bg": "#D7141A", "fg": "#fff", "pred": ["3-1", "1-1", "2-2", "0-4", "3-1", "2-1", "0-4", "2-2", "6-0", "2-2", "2-1", "1-2", "5-0", "1-2", "2-1", "0-0", "3-2", "3-0", "2-0", "2-1", "3-1", "2-1", "2-2", "0-3", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "DANIEL", "bg": "#2E75B6", "fg": "#fff", "pred": ["2-0", "2-2", "1-2", "0-3", "2-0", "3-0", "0-3", "1-3", "5-0", "2-0", "2-0", "0-3", "4-0", "1-3", "2-1", "1-1", "3-1", "2-0", "4-0", "3-0", "4-0", "2-1", "1-0", "0-3", "2-2", "2-1", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "DĂNUȚ", "bg": "#FFE600", "fg": "#000", "pred": ["1-0", "0-0", "1-0", "0-1", "2-0", "3-2", "0-1", "1-1", "2-1", "2-1", "0-0", "0-1", "3-1", "0-1", "2-1", "1-1", "2-0", "2-0", "1-0", "1-0", "2-0", "1-1", "0-1", "1-1", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "LAUR", "bg": "#F39200", "fg": "#000", "pred": ["0-1", "2-1", "0-0", "0-0", "0-1", "1-0", "0-2", "0-1", "1-0", "0-0", "1-3", "0-0", "2-2", "0-3", "1-1", "2-2", "2-2", "0-0", "3-2", "2-0", "3-0", "3-0", "1-2", "2-3", "3-3", "0-0", "2-0", "2-1", "2-1", "1-2", "3-0", "1-1", "2-0", "2-0", "2-0", "0-2", "3-0", "2-0", "2-0", "0-1", "2-0", "3-0", "2-1", "0-1", "3-0", "2-0", "0-2", "2-0", "3-0", "1-1", "0-1", "0-2", "2-1", "1-2", "0-2", "1-2", "2-1", "0-2", "1-1", "1-0", "1-2", "2-0", "1-1", "1-2", "1-1", "0-2", "0-2", "2-0", "1-2", "1-1", "1-1", "0-2"]}, {"nume": "LIVIU", "bg": "#92D050", "fg": "#000", "pred": ["2-0", "1-2", "1-1", "1-3", "3-2", "2-0", "0-2", "1-3", "4-1", "1-2", "0-1", "0-2", "3-0", "2-1", "2-1", "1-3", "3-1", "1-1", "2-0", "3-1", "4-0", "2-2", "1-1", "1-3", "1-2", "2-0", "1-2", "2-0", "1-1", "2-0", "4-0", "2-1", "1-2", "3-0", "2-1", "1-2", "4-1", "2-0", "3-1", "2-2", "4-2", "3-1", "2-0", "1-1", "4-2", "4-0", "0-2", "3-0", "2-1", "3-1", "2-0", "1-3", "3-1", "2-0", "1-1", "1-4", "1-2", "1-1", "1-2", "1-3", "0-3", "1-1", "1-2", "0-3", "1-1", "1-2", "1-3", "4-0", "1-3", "0-1", "0-2", "0-3"]}, {"nume": "LUCI", "bg": "#4472C4", "fg": "#fff", "pred": ["1-3", "2-2", "3-1", "2-1", "2-3", "1-1", "0-2", "1-3", "4-0", "1-1", "0-3", "1-4", "5-1", "0-2", "3-1", "0-2", "5-1", "2-0", "4-2", "2-2", "5-1", "3-1", "1-2", "2-2", "4-1", "3-0", "2-1", "0-2", "3-2", "2-3", "4-1", "3-3", "0-4", "2-2", "1-1", "2-3", "2-2", "3-2", "2-0", "1-1", "3-1", "2-0", "1-1", "2-1", "3-0", "2-0", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "MARIAN", "bg": "#7B4B27", "fg": "#fff", "pred": ["2-0", "0-2", "1-1", "0-3", "2-1", "4-0", "0-2", "1-2", "6-0", "3-1", "0-2", "0-2", "5-0", "0-2", "3-0", "0-1", "3-0", "3-0", "4-0", "3-1", "5-0", "3-1", "2-0", "0-2", "1-3", "2-1", "2-0", "1-2", "2-1", "1-1", "4-0", "1-1", "2-1", "4-0", "1-0", "0-2", "3-0", "2-0", "2-1", "1-1", "2-1", "3-0", "3-1", "0-0", "3-0", "4-1", "0-1", "3-0", "0-0", "2-1", "0-1", "1-3", "1-2", "0-2", "1-1", "0-3", "2-1", "0-3", "2-1", "1-1", "0-2", "0-0", "1-1", "0-3", "1-2", "1-3", "0-3", "2-0", "2-2", "1-2", "0-2", "0-4"]}, {"nume": "SEBI", "bg": "#F06EAA", "fg": "#000", "pred": ["1-0", "1-1", "2-1", "1-1", "1-1", "2-1", "1-2", "0-0", "1-1", "2-1", "0-0", "1-0", "2-1", "1-1", "0-0", "1-1", "2-1", "1-1", "2-1", "0-0", "2-2", "0-0", "1-0", "2-1", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "VLAD", "bg": "#6E1E2B", "fg": "#fff", "pred": ["2-1", "0-0", "0-2", "1-2", "0-1", "3-0", "0-3", "0-1", "4-0", "2-1", "0-0", "1-3", "3-0", "1-2", "1-1", "2-2", "2-0", "3-0", "3-0", "2-1", "3-1", "0-0", "1-2", "1-3", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}, {"nume": "CIOACĂ", "bg": "#00838F", "fg": "#fff", "pred": ["3-0", "0-0", "1-2", "0-1", "0-0", "0-0", "0-2", "1-3", "4-0", "1-1", "0-0", "0-2", "2-0", "1-3", "1-1", "0-0", "3-0", "2-0", "2-0", "1-0", "1-1", "1-0", "0-1", "0-0", "1-1", "0-0", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}], "rezultate": {"1": "2-0", "2": "2-1", "3": "1-1", "4": "1-1", "5": "4-1"}};
+let rezultate = {...DATE.rezultate};
+let ultimaActualizare = null;
+const $ = id => document.getElementById(id);
+const norm = s => (s||'').trim().replace(/\s+/g,'').replace(/[–—:]/g,'-');
+const valid = s => /^\d{1,2}-\d{1,2}$/.test(s);
+
+/* ---------- redare ---------- */
+function redaTot(noi){
+  redaClasament();
+  redaGrafic();
+  redaGrila(noi||new Set());
+}
+function calcClasament(){
+  const P = DATE.participanti.map(p=>{
+    let pct=0, date=0;
+    p.pred.forEach((v,i)=>{
+      if(v) date++;
+      const r = rezultate[String(i+1)];
+      if(v && r && norm(v)===norm(r)) pct++;
+    });
+    return {n:p.nume,bg:p.bg,fg:p.fg,pct,date};
+  }).sort((a,b)=>b.pct-a.pct || b.date-a.date);
+  let loc=0, prev=null;
+  P.forEach((p,i)=>{ if(p.pct!==prev){loc=i+1;prev=p.pct;} p.loc=loc; });
+  return P;
+}
+function redaClasament(){
+  const P = calcClasament();
+  $('clasament').innerHTML = P.map(p=>`
+    <div class="card ${p.loc===1&&p.pct>0?'lider':''}">
+      <div class="loc">${p.loc}</div>
+      <div class="chip" style="background:${p.bg}"></div>
+      <div class="cine"><b>${p.n}</b><span>${p.date}/72 pronosticuri</span></div>
+      <div class="pct">${p.pct}</div>
+    </div>`).join('');
+  const jucate = Object.keys(rezultate).length;
+  $('notaClasament').textContent = `${jucate}/72 meciuri jucate` + (ultimaActualizare?` · actualizat ${ultimaActualizare}`:'');
+}
+function redaGrafic(){
+  const P = calcClasament();
+  const bw=34, gap=26, ml=42, mr=14, mt=30, mb=96, Hbar=235;
+  const W = ml+mr+P.length*(bw+gap), H = mt+Hbar+mb;
+  const maxV = Math.max(3, ...P.map(p=>p.pct));
+  const step = maxV<=8 ? 1 : (maxV<=16 ? 2 : 5);
+  let s='';
+  for(let v=0; v<=maxV; v+=step){
+    const y = mt + Hbar - v/maxV*Hbar;
+    s += `<line x1="${ml}" y1="${y}" x2="${W-mr}" y2="${y}" stroke="${v?'#E5E9E2':'#15231B'}" stroke-width="${v?1:2}"/>`+
+         `<text class="axa" x="${ml-7}" y="${y+4}" text-anchor="end">${v}</text>`;
+  }
+  P.forEach((p,i)=>{
+    const x = ml + gap/2 + i*(bw+gap);
+    const h = p.pct/maxV*Hbar;
+    const y = mt + Hbar - h;
+    if(p.pct>0){
+      s += `<rect class="bara anim" x="${x}" y="${y}" width="${bw}" height="${h}" fill="${p.bg}" style="animation-delay:${i*35}ms"/>`;
+    } else {
+      s += `<rect class="bara" x="${x}" y="${mt+Hbar-4}" width="${bw}" height="4" fill="${p.bg}" opacity="0.45"/>`;
+    }
+    s += `<text class="val" x="${x+bw/2}" y="${(p.pct>0?y:mt+Hbar-6)-7}" text-anchor="middle">${p.pct}</text>`+
+         `<text class="nume-g" x="${x+bw/2+5}" y="${mt+Hbar+18}" text-anchor="end" transform="rotate(-50 ${x+bw/2+5} ${mt+Hbar+18})">${p.n}</text>`;
+  });
+  const g = $('grafic');
+  g.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  g.innerHTML = s;
+}
+function redaGrila(noi){
+  $('capTabel').innerHTML =
+    '<th style="min-width:34px">Nr</th><th>Data</th>'+
+    '<th style="text-align:left;min-width:170px">Meci</th><th>Rezultat</th>'+
+    DATE.participanti.map(p=>`<th class="nume"><span class="numev" style="background:${p.bg};color:${p.fg}">${p.nume}</span></th>`).join('');
+  let html='', dataPrec=null;
+  DATE.meciuri.forEach(m=>{
+    const r = rezultate[String(m.nr)];
+    const et = (m.data!==dataPrec)?' class="etapa"':''; dataPrec=m.data;
+    html += `<tr${et}><td>${m.nr}</td><td class="data">${m.data}</td>`+
+      `<th scope="row">${m.g} – ${m.o}</th>`+
+      `<td class="rez ${r?'':'gol'}">${r||'—'}</td>`+
+      DATE.participanti.map(p=>{
+        const v=p.pred[m.nr-1];
+        if(!v) return '<td class="p"></td>';
+        const hit = r && norm(v)===norm(r);
+        const nou = hit && noi.has(m.nr) ? ' nou':'';
+        return `<td class="p ${hit?'hit':''}${nou}">${v}</td>`;
+      }).join('')+'</tr>';
+  });
+  $('corpTabel').innerHTML = html;
+}
+
+/* ---------- stocare partajată ---------- */
+async function incarcaStocate(){
+  if(!window.storage) return;
+  try{
+    const r = await window.storage.get('rezultate-cm2026-dsaa', true);
+    if(r && r.value){
+      const d = JSON.parse(r.value);
+      rezultate = {...rezultate, ...(d.rezultate||{})};
+      ultimaActualizare = d.la || null;
+    }
+  }catch(e){ /* cheia nu există încă — normal la prima deschidere */ }
+}
+async function salveazaStocate(){
+  if(!window.storage) return;
+  try{
+    ultimaActualizare = new Date().toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    await window.storage.set('rezultate-cm2026-dsaa', JSON.stringify({rezultate, la:ultimaActualizare}), true);
+  }catch(e){ console.error('Salvarea partajată a eșuat', e); }
+}
+
+/* ---------- actualizare prin Claude + căutare web ---------- */
+async function actualizeaza(){
+  const btn=$('btnRefresh'), st=$('status');
+  btn.disabled=true; st.classList.remove('eroare');
+  st.textContent='Caut rezultatele meciurilor încheiate…';
+  const lipsa = DATE.meciuri.filter(m=>!rezultate[String(m.nr)] && eRezonabilJucat(m.data));
+  if(lipsa.length===0){ st.textContent='Toate meciurile cu data trecută au deja rezultat.'; btn.disabled=false; return; }
+  const lista = lipsa.map(m=>`${m.nr}: ${m.g} vs ${m.o} (${m.data}.2026)`).join('\n');
+  const prompt = `Folosește căutarea web pentru a afla scorurile FINALE (după 90 de minute sau cum s-au încheiat) ale acestor meciuri de la Campionatul Mondial de Fotbal 2026, dacă s-au terminat deja. Numele echipelor sunt în română. Datele sunt în fusul orar al României (zz.ll).\n${lista}\n\nRăspunde DOAR cu un obiect JSON, fără alt text, fără backticks, în formatul {"rezultate":{"<numărul meciului>":"X-Y", ...}} unde X = golurile primei echipe, Y = golurile celei de-a doua, în ordinea de mai sus. Include NUMAI meciurile încheiate; dacă niciunul nu s-a terminat, răspunde {"rezultate":{}}.`;
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
+        messages:[{role:'user',content:prompt}],
+        tools:[{type:'web_search_20250305',name:'web_search'}]})
+    });
+    const data = await resp.json();
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    const i0=text.indexOf('{'), i1=text.lastIndexOf('}');
+    if(i0<0||i1<0) throw new Error('Răspuns fără JSON');
+    const obj = JSON.parse(text.slice(i0,i1+1));
+    const noi = new Set();
+    for(const [nr,scor] of Object.entries(obj.rezultate||{})){
+      const s = norm(scor);
+      if(valid(s) && !rezultate[nr]){ rezultate[nr]=s; noi.add(Number(nr)); }
+    }
+    if(noi.size){ await salveazaStocate(); redaTot(noi);
+      st.textContent=`Adăugate ${noi.size} rezultate noi.`;
+    } else { redaTot(); st.textContent='Niciun meci nou încheiat deocamdată.'; }
+  }catch(e){
+    console.error(e); st.classList.add('eroare');
+    st.textContent='Actualizarea automată a eșuat — folosește corectura manuală de mai jos.';
+  }
+  btn.disabled=false;
+}
+function eRezonabilJucat(zzll){
+  const [z,l]=zzll.split('.').map(Number);
+  const azi=new Date();
+  return new Date(2026,l-1,z) <= azi;
+}
+
+/* ---------- corectură manuală ---------- */
+function initManual(){
+  $('selMeci').innerHTML = DATE.meciuri.map(m=>
+    `<option value="${m.nr}">${m.nr}. ${m.g} – ${m.o} (${m.data})</option>`).join('');
+  $('btnManual').onclick = async ()=>{
+    const nr=$('selMeci').value, s=norm($('inpScor').value), st=$('statusManual');
+    if(!valid(s)){ st.textContent='Format invalid — scrie de ex. 2-1'; st.className='eroare'; return; }
+    rezultate[nr]=s; await salveazaStocate(); redaTot(new Set([Number(nr)]));
+    st.className=''; st.textContent=`Salvat: meciul ${nr} → ${s}`;
+    $('inpScor').value='';
+  };
+}
+
+(async function(){
+  await incarcaStocate();
+  redaTot(); initManual();
+})();
+</script>
+</body>
+</html>
