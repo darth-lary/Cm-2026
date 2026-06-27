@@ -305,8 +305,20 @@ function eRezonabilJucat(zzll){
 /* ---------- corectură manuală ---------- */
 function initManual(){
   $('selMeci').innerHTML = DATE.meciuri.map(m=>
-    `<option value="${m.nr}">${m.nr}. ${m.g} – ${m.o} (${m.data})</option>`).join('');
+    `<option value="${m.nr}">${m.nr}. ${m.g?`${m.g} – ${m.o}`:(m.faza||'TBD')} (${m.data})</option>`).join('');
   $('btnManual').onclick = async ()=>{
     const nr=$('selMeci').value, s=norm($('inpScor').value), st=$('statusManual');
     if(!valid(s)){ st.textContent='Format invalid — scrie de ex. 2-1'; st.className='eroare'; return; }
-    rezul
+    rezultate[nr]=s; await salveazaStocate(); redaTot(new Set([Number(nr)]));
+    st.className=''; st.textContent=`Salvat: meciul ${nr} → ${s}`;
+    $('inpScor').value='';
+  };
+}
+
+(async function(){
+  await incarcaStocate();
+  redaTot(); initManual();
+})();
+</script>
+</body>
+</html>
