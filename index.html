@@ -2,7 +2,7 @@
 {
   "name": "Cm2026 Dsaa Pronosticuri",
   "schemaVersion": 1,
-  "description": "CM 2026 / DSAA football-prediction contest leaderboard — 17 players, 72 group-stage matches, 1 point per exact score. Match results live in DATE.rezultate inside the HTML and are refreshed each morning by a scheduled task that web-searches finished scores."
+  "description": "CM 2026 / DSAA football-prediction contest leaderboard — 17 players, 104 matches (72 group + 32 knockout), 1 point per exact score. Matches are split into separate sections per phase (group, round of 32, round of 16, quarters, semis, finals). Results live in DATE.rezultate and are refreshed each morning by a scheduled task that web-searches finished scores."
 }
 </script>
 <html lang="ro">
@@ -80,7 +80,6 @@ tbody th{position:sticky;left:0;z-index:3;background:var(--hartie);text-align:le
   border-right:2px solid var(--cerneala);max-width:230px;white-space:normal;line-height:1.25}
 td.data{color:var(--gri);font-variant-numeric:tabular-nums}
 td.rez{font:800 15px 'Saira Condensed';background:#F4F6F2;border-right:2px solid var(--cerneala)}
-.faza-tag{display:inline-block;font:700 9.5px 'Saira Condensed';letter-spacing:.08em;text-transform:uppercase;background:var(--teren);color:#fff;padding:2px 6px;border-radius:3px;margin-right:6px;vertical-align:middle}
 td.rez.gol{color:#B9C2B9;font:600 12px 'Inter'}
 td.p{font-variant-numeric:tabular-nums}
 td.hit{background:var(--verde-hit);color:var(--verde-txt);font-weight:700;position:relative}
@@ -125,9 +124,49 @@ button.secundar{font:700 13px 'Saira Condensed';letter-spacing:.06em;text-transf
 
   <section>
     <h2>Faza grupelor <span class="nota">glisează lateral pentru toți concurenții · ✓ = scor exact</span></h2>
-    <div class="cadru"><table id="grila">
-      <thead><tr id="capTabel"></tr></thead>
-      <tbody id="corpTabel"></tbody>
+    <div class="cadru"><table>
+      <thead><tr id="cap-grupe"></tr></thead>
+      <tbody id="corp-grupe"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Șaisprezecimi <span class="nota">runda de 32 · 28.06 – 03.07</span></h2>
+    <div class="cadru"><table>
+      <thead><tr id="cap-saispre"></tr></thead>
+      <tbody id="corp-saispre"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Optimi <span class="nota">optimi de finală · 04 – 07.07</span></h2>
+    <div class="cadru"><table>
+      <thead><tr id="cap-optimi"></tr></thead>
+      <tbody id="corp-optimi"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Sferturi <span class="nota">sferturi de finală · 09 – 11.07</span></h2>
+    <div class="cadru"><table>
+      <thead><tr id="cap-sferturi"></tr></thead>
+      <tbody id="corp-sferturi"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Semifinale <span class="nota">14 – 15.07</span></h2>
+    <div class="cadru"><table>
+      <thead><tr id="cap-semi"></tr></thead>
+      <tbody id="corp-semi"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Finale <span class="nota">finala mică 18.07 · finala 19.07</span></h2>
+    <div class="cadru"><table>
+      <thead><tr id="cap-finale"></tr></thead>
+      <tbody id="corp-finale"></tbody>
     </table></div>
   </section>
 
@@ -146,7 +185,7 @@ button.secundar{font:700 13px 'Saira Condensed';letter-spacing:.06em;text-transf
   <div class="subsol">
     Regulă: 1 punct pentru scor exact, 0 în rest; departajare la egalitate — ordinea alfabetică nu contează, locurile egale se împart.
     Rezultatele se salvează partajat: orice coleg care deschide pagina vede aceeași situație, iar o actualizare făcută de unul apare la toți.
-    Faza eliminatorie se adaugă după 28 iunie, când se cunosc echipele calificate. Sursa rezultatelor: căutare web prin Claude la apăsarea butonului.
+    Meciurile sunt grupate pe faze: grupe, șaisprezecimi, optimi, sferturi, semifinale și finale. Faza eliminatorie se completează pe măsură ce se cunosc echipele calificate. Sursa rezultatelor: căutare web prin Claude.
   </div>
 </main>
 
@@ -218,27 +257,41 @@ function redaGrafic(){
   g.setAttribute('viewBox', `0 0 ${W} ${H}`);
   g.innerHTML = s;
 }
-function redaGrila(noi){
-  $('capTabel').innerHTML =
-    '<th style="min-width:34px">Nr</th><th>Data</th>'+
+const FAZE = [
+  {cap:'cap-grupe',    corp:'corp-grupe',    filtru:m=>!m.faza},
+  {cap:'cap-saispre',  corp:'corp-saispre',  filtru:m=>m.faza==='Șaisprezecimi'},
+  {cap:'cap-optimi',   corp:'corp-optimi',   filtru:m=>m.faza==='Optimi'},
+  {cap:'cap-sferturi', corp:'corp-sferturi', filtru:m=>m.faza==='Sferturi'},
+  {cap:'cap-semi',     corp:'corp-semi',     filtru:m=>m.faza==='Semifinale'},
+  {cap:'cap-finale',   corp:'corp-finale',   filtru:m=>m.faza==='Finala mică'||m.faza==='Finala'},
+];
+function capHTML(){
+  return '<th style="min-width:34px">Nr</th><th>Data</th>'+
     '<th style="text-align:left;min-width:170px">Meci</th><th>Rezultat</th>'+
     DATE.participanti.map(p=>`<th class="nume"><span class="numev" style="background:${p.bg};color:${p.fg}">${p.nume}</span></th>`).join('');
-  let html='', dataPrec=null;
-  DATE.meciuri.forEach(m=>{
-    const r = rezultate[String(m.nr)];
-    const et = (m.data!==dataPrec)?' class="etapa"':''; dataPrec=m.data;
-    html += `<tr${et}><td>${m.nr}</td><td class="data">${m.data}</td>`+
-      `<th scope="row">${m.faza?`<span class="faza-tag">${m.faza}</span> `:''}${m.g?`${m.g} – ${m.o}`:(m.faza?'':'TBD')}</th>`+
-      `<td class="rez ${r?'':'gol'}">${r||'—'}</td>`+
-      DATE.participanti.map(p=>{
-        const v=p.pred[m.nr-1];
-        if(!v) return '<td class="p"></td>';
-        const hit = r && norm(v)===norm(r);
-        const nou = hit && noi.has(m.nr) ? ' nou':'';
-        return `<td class="p ${hit?'hit':''}${nou}">${v}</td>`;
-      }).join('')+'</tr>';
+}
+function redaGrila(noi){
+  FAZE.forEach(f=>{
+    const capEl=$(f.cap), corpEl=$(f.corp);
+    if(!capEl||!corpEl) return;
+    capEl.innerHTML = capHTML();
+    let html='', dataPrec=null;
+    DATE.meciuri.filter(f.filtru).forEach(m=>{
+      const r = rezultate[String(m.nr)];
+      const et = (m.data!==dataPrec)?' class="etapa"':''; dataPrec=m.data;
+      html += `<tr${et}><td>${m.nr}</td><td class="data">${m.data}</td>`+
+        `<th scope="row">${m.g?`${m.g} – ${m.o}`:'TBD'}</th>`+
+        `<td class="rez ${r?'':'gol'}">${r||'—'}</td>`+
+        DATE.participanti.map(p=>{
+          const v=p.pred[m.nr-1];
+          if(!v) return '<td class="p"></td>';
+          const hit = r && norm(v)===norm(r);
+          const nou = hit && noi.has(m.nr) ? ' nou':'';
+          return `<td class="p ${hit?'hit':''}${nou}">${v}</td>`;
+        }).join('')+'</tr>';
+    });
+    corpEl.innerHTML = html;
   });
-  $('corpTabel').innerHTML = html;
 }
 
 /* ---------- stocare partajată ---------- */
@@ -266,7 +319,7 @@ async function actualizeaza(){
   const btn=$('btnRefresh'), st=$('status');
   btn.disabled=true; st.classList.remove('eroare');
   st.textContent='Caut rezultatele meciurilor încheiate…';
-  const lipsa = DATE.meciuri.filter(m=>!rezultate[String(m.nr)] && eRezonabilJucat(m.data));
+  const lipsa = DATE.meciuri.filter(m=>!rezultate[String(m.nr)] && m.g && eRezonabilJucat(m.data));
   if(lipsa.length===0){ st.textContent='Toate meciurile cu data trecută au deja rezultat.'; btn.disabled=false; return; }
   const lista = lipsa.map(m=>`${m.nr}: ${m.g} vs ${m.o} (${m.data}.2026)`).join('\n');
   const prompt = `Folosește căutarea web pentru a afla scorurile FINALE (după 90 de minute sau cum s-au încheiat) ale acestor meciuri de la Campionatul Mondial de Fotbal 2026, dacă s-au terminat deja. Numele echipelor sunt în română. Datele sunt în fusul orar al României (zz.ll).\n${lista}\n\nRăspunde DOAR cu un obiect JSON, fără alt text, fără backticks, în formatul {"rezultate":{"<numărul meciului>":"X-Y", ...}} unde X = golurile primei echipe, Y = golurile celei de-a doua, în ordinea de mai sus. Include NUMAI meciurile încheiate; dacă niciunul nu s-a terminat, răspunde {"rezultate":{}}.`;
