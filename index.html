@@ -80,6 +80,7 @@ tbody th{position:sticky;left:0;z-index:3;background:var(--hartie);text-align:le
   border-right:2px solid var(--cerneala);max-width:230px;white-space:normal;line-height:1.25}
 td.data{color:var(--gri);font-variant-numeric:tabular-nums}
 td.rez{font:800 15px 'Saira Condensed';background:#F4F6F2;border-right:2px solid var(--cerneala)}
+.faza-tag{display:inline-block;font:700 9.5px 'Saira Condensed';letter-spacing:.08em;text-transform:uppercase;background:var(--teren);color:#fff;padding:2px 6px;border-radius:3px;margin-right:6px;vertical-align:middle}
 td.rez.gol{color:#B9C2B9;font:600 12px 'Inter'}
 td.p{font-variant-numeric:tabular-nums}
 td.hit{background:var(--verde-hit);color:var(--verde-txt);font-weight:700;position:relative}
@@ -227,7 +228,7 @@ function redaGrila(noi){
     const r = rezultate[String(m.nr)];
     const et = (m.data!==dataPrec)?' class="etapa"':''; dataPrec=m.data;
     html += `<tr${et}><td>${m.nr}</td><td class="data">${m.data}</td>`+
-      `<th scope="row">${m.g?`${m.g} – ${m.o}`:(m.faza||'TBD')}</th>`+
+      `<th scope="row">${m.faza?`<span class="faza-tag">${m.faza}</span> `:''}${m.g?`${m.g} – ${m.o}`:(m.faza?'':'TBD')}</th>`+
       `<td class="rez ${r?'':'gol'}">${r||'—'}</td>`+
       DATE.participanti.map(p=>{
         const v=p.pred[m.nr-1];
@@ -308,16 +309,4 @@ function initManual(){
   $('btnManual').onclick = async ()=>{
     const nr=$('selMeci').value, s=norm($('inpScor').value), st=$('statusManual');
     if(!valid(s)){ st.textContent='Format invalid — scrie de ex. 2-1'; st.className='eroare'; return; }
-    rezultate[nr]=s; await salveazaStocate(); redaTot(new Set([Number(nr)]));
-    st.className=''; st.textContent=`Salvat: meciul ${nr} → ${s}`;
-    $('inpScor').value='';
-  };
-}
-
-(async function(){
-  await incarcaStocate();
-  redaTot(); initManual();
-})();
-</script>
-</body>
-</html>
+    rezul
